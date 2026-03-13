@@ -51,7 +51,8 @@ resultado_sql = spark.sql("""
         cidade,
         COUNT(*) AS total_pedidos,
         ROUND(AVG(valor_pedido),2) AS ticket_medio,
-        ROUND(AVG(avaliacao_cliente),2) AS avaliacao_media
+        ROUND(AVG(avaliacao_cliente),2) AS avaliacao_media,
+        ROUND(SUM(valor_pedido),2) AS faturamento_total
     FROM pedidos
     WHERE status = 'Entregue'
     GROUP BY cidade
@@ -59,3 +60,19 @@ resultado_sql = spark.sql("""
 """)
 
 resultado_sql.show()
+
+df_pandas = resultado_sql.toPandas()
+
+import matplotlib.pyplot as plt
+
+
+
+plt.figure()
+plt.bar(df_pandas["cidade"], df_pandas["faturamento_total"])
+plt.title("Faturamento Total por Cidade")
+plt.xlabel("Cidade")
+plt.ylabel("Faturamento Total")
+plt.xticks(rotation=45)
+plt.show()
+
+spark.stop()
